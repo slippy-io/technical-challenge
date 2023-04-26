@@ -11,8 +11,8 @@ The project has been hosted on Render.com for assessment purposes, and my Fireba
 
 Learning Outcomes:
 
-Handling errors with TypeScript
-Working with Firebase
-Learning a bit about Fastify
-How to host an application on Render (serverless)
-GitHub Actions
+1. Handling errors with TypeScript
+2. Working with Firebase
+3. Learning a bit about Fastify
+4. How to host an application on Render (serverless)
+5. GitHub Actions
