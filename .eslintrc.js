@@ -11,7 +11,7 @@ module.exports = {
     node: true,
   },
   rules: {
-    'prettier/prettier': 'error',
+    // 'prettier/prettier': 'error',
     'no-var': 'error',
     semi: ['error', 'never'],
     quotes: ['error', 'single'],

@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import { Router } from 'express'
 import { createThreadHandler, deleteThreadHandler, getThreadHandler, listThreadsHandler, updateThreadHandler } from './controller'
 import commentRoutes from '../comments/routes'

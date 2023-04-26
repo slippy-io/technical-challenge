@@ -1,6 +1,8 @@
+/* eslint-disable prettier/prettier */
 import { Request, Response } from 'express'
 import { threadCreateSchema, threadUpdateSchema } from './schema'
 import { createThread, deleteThread, getThread, listThreads, updateThread } from './service'
+import { ZodError } from 'zod'
 
 /**
  * Create a thread
@@ -9,15 +11,31 @@ import { createThread, deleteThread, getThread, listThreads, updateThread } from
  * @returns Success object of created thread
  */
 export const createThreadHandler = async (req: Request, res: Response) => {
-  throw new Error('Not implemented')
+  try {
+    const threadData = threadCreateSchema.parse(req.body)
 
-  // TODO: Validate the request body using threadCreateSchema
+    // Create the thread in Firestore
+    const thread = await createThread(threadData)
 
-  // TODO: If the request body is invalid, return a 400 response with the error
-
-  // TODO: Create the thread using the createThread service
-
-  // TODO: Return the created thread in the response
+    // Return the created thread
+    res.status(200).json({
+      success: true,
+      data: thread,
+    })
+  } catch (error) {
+    // Handle validation errors
+    if (error instanceof ZodError) {
+      res.status(400).json({
+        success: false,
+        errors: error.errors,
+      })
+    } else {
+      res.status(500).json({
+        success: false,
+        error:error,
+      })
+    }
+  }
 }
 
 /**
@@ -27,11 +45,15 @@ export const createThreadHandler = async (req: Request, res: Response) => {
  * @returns Success object of list of threads
  */
 export const listThreadsHandler = async (req: Request, res: Response) => {
-  throw new Error('Not implemented')
+  try {
+    // TODO: Fetch the list of threads using the listThreads service
+    const threads = await listThreads()
 
-  // TODO: Fetch the list of threads using the listThreads service
-
-  // TODO: Return the list of threads in the response
+    // TODO: Return the list of threads in the response
+    res.json({ success:true, data:threads })
+  } catch (error) {
+    res.status(500).json({success:false ,error: "Unable to Get Data" })
+  }
 }
 
 /**
@@ -43,11 +65,17 @@ export const listThreadsHandler = async (req: Request, res: Response) => {
 export const getThreadHandler = async (req: Request, res: Response) => {
   const { threadId } = req.params
 
-  throw new Error('Not implemented')
+  try {
+    // Fetch the thread using the getThread service
+    const thread = await getThread(threadId)
 
-  // TODO: Fetch the thread using the getThread service
-
-  // TODO: Return the thread in the response
+    // Return the thread in the response
+    return res.status(200).json({ success: true, data: thread })
+  } catch (error) {
+    // Handle errors
+    console.error(error)
+    return res.status(500).json({ success: false, error: 'Internal server error' })
+  }
 }
 
 /**
@@ -59,16 +87,25 @@ export const getThreadHandler = async (req: Request, res: Response) => {
 export const updateThreadHandler = async (req: Request, res: Response) => {
   const { threadId } = req.params
 
-  throw new Error('Not implemented')
+  try {
+    const data = threadUpdateSchema.parse(req.body)
 
-  // TODO: Validate the request body using threadUpdateSchema
+    const updatedThread= await updateThread(threadId, data)
 
-  // TODO: If the request body is invalid, return a 400 response with the error
+    res.status(200).json({
+      status: 'success',
+      data: updatedThread,
+    })
+  } catch (error) {
+    console.error(error)
 
-  // TODO: Update the thread using the updateThread service
-
-  // TODO: Return the updated thread in the response
+    res.status(400).json({
+      status: false,
+      error: error
+    })
+  }
 }
+
 
 /**
  * Delete a thread by ID
@@ -79,9 +116,13 @@ export const updateThreadHandler = async (req: Request, res: Response) => {
 export const deleteThreadHandler = async (req: Request, res: Response) => {
   const { threadId } = req.params
 
-  throw new Error('Not implemented')
-
-  // TODO: Delete the thread using the deleteThread service
-
-  // TODO: Return a success response
+  try {
+    // Delete the thread using the deleteThread service
+    await deleteThread(threadId)
+    // Return a success response
+    res.status(200).json({ success: true })
+  } catch (error) {
+    // If an error occurs, return a 500 response with the error message
+    res.status(500).json({ error: error })
+  }
 }

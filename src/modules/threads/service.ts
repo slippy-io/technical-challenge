@@ -1,7 +1,7 @@
+/* eslint-disable prettier/prettier */
 import { FieldValue } from 'firebase-admin/firestore'
 import { db } from '../../services/firebase'
-import { ThreadUpdate, type Thread, type ThreadCreate } from './schema'
-
+import { ThreadUpdate, type Thread, type ThreadCreate, threadSchema } from './schema'
 // Reference to the threads collection
 const threadCollection = db.collection('threads')
 
@@ -10,11 +10,12 @@ const fromFirestore = (snapshot: FirebaseFirestore.DocumentSnapshot<FirebaseFire
   const data = snapshot.data()
 
   if (!data) throw new Error('Thread not found')
+  const createdAt = typeof data.createdAt === 'string' ? new Date(Date.parse(data.createdAt)) : data.createdAt.toDate()
 
   return {
     ...data,
     id: snapshot.id,
-    createdAt: data.createdAt.toDate(),
+    createdAt
   } as Thread
 }
 
@@ -23,8 +24,14 @@ const fromFirestore = (snapshot: FirebaseFirestore.DocumentSnapshot<FirebaseFire
  * @returns An array of threads
  */
 export const listThreads = async (): Promise<Thread[]> => {
-  // TODO: Fetch the list of threads
-  throw new Error('Not implemented')
+  const threadsSnapshot = await threadCollection.get()
+
+  const threads: Thread[] = []
+  threadsSnapshot.forEach((doc) => {
+    threads.push(fromFirestore(doc))
+  })
+
+  return threads
 }
 
 /**
@@ -33,8 +40,9 @@ export const listThreads = async (): Promise<Thread[]> => {
  * @returns The thread with the given ID
  */
 export const getThread = async (id: Thread['id']): Promise<Thread> => {
-  // TODO: Fetch the thread by ID
-  throw new Error('Not implemented')
+  const singleThread = await threadCollection.doc(id).get()
+  
+  return fromFirestore(singleThread)
 }
 
 /**
@@ -43,8 +51,19 @@ export const getThread = async (id: Thread['id']): Promise<Thread> => {
  * @returns The newly created thread
  */
 export const createThread = async (data: ThreadCreate): Promise<Thread> => {
-  // TODO: Create the thread in Firestore and return the newly created thread
-  throw new Error('Not implemented')
+  const CreateThread = threadCollection.doc()
+
+  
+ 
+  const newThread: Thread = {
+    id: CreateThread.id,
+    ...data,  
+    createdAt:new Date(),
+  }
+
+  await CreateThread.set(newThread)
+
+  return newThread
 }
 
 /**
@@ -54,8 +73,18 @@ export const createThread = async (data: ThreadCreate): Promise<Thread> => {
  * @returns The updated thread
  */
 export const updateThread = async (id: Thread['id'], data: ThreadUpdate): Promise<Thread> => {
-  // TODO: Update the thread in Firestore and return the updated thread
-  throw new Error('Not implemented')
+  const threadRef = db.collection('threads').doc(id)
+
+  // Update the thread document with the new data
+  await threadRef.update(data)
+
+  // Get the updated thread document from Firestore
+  const updatedThreadDoc = await threadRef.get()
+
+  // Convert the Firestore document to a Thread object and return it
+  const updatedThread = fromFirestore(updatedThreadDoc)
+
+  return updatedThread
 }
 
 /**
@@ -64,6 +93,9 @@ export const updateThread = async (id: Thread['id'], data: ThreadUpdate): Promis
  * @returns The deleted thread
  */
 export const deleteThread = async (id: Thread['id']): Promise<FirebaseFirestore.WriteResult> => {
-  // TODO: Delete the thread in Firestore and return the write result
-  throw new Error('Not implemented')
+  // Get a reference to the thread document
+  const thread = threadCollection.doc(id)
+
+  // Delete the thread document
+  return thread.delete()
 }

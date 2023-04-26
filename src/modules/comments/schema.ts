@@ -1,9 +1,15 @@
+/* eslint-disable prettier/prettier */
 import { z } from 'zod'
 
 // TODO: Add the fields you need to the Comment schema
 export const CommentSchema = z.object({
   id: z.string(),
+  threadId: z.string(),
+  content: z.string(),
+  createdAt: z.date(),
+  createdBy: z.string(),
 })
+
 export type Comment = z.infer<typeof CommentSchema>
 
 // ? These schemas are provided for you, but you may need to add more fields to them

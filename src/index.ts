@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import { app } from './app'
 
 const PORT = (process.env.PORT ?? '8080') as string
