@@ -2,9 +2,15 @@ import { FieldValue } from 'firebase-admin/firestore'
 import { db } from '../../services/firebase'
 import { Thread } from '../threads/schema'
 import { CommentUpdate, type Comment, type CommentCreate } from './schema'
+import moment from 'moment';
 
 // Reference to the threads collection
 const collectionRef = db.collection('Thread')
+
+//timeline
+
+const time = Date.now();
+const timeStamp = moment(time).format('ddd MMM DD YYYY HH:mm:ss [GMT]ZZ ');
 
 // Utility function to get the comments collection for a given thread
 const commentCollection = (threadId: Thread['id']) => db.collection(`threads/${threadId}/comments`)
@@ -21,8 +27,8 @@ const fromFirestore = (snapshot: FirebaseFirestore.DocumentSnapshot<FirebaseFire
     threadId: data.threadId,
     message: data.message,
     username: data.username,
-    createdAt: new Date(),
-    changedBy: data.changedBy
+    createdAt: data.createdAt,
+    changedAt: data.changedAt
   } as Comment
 }
 /**
@@ -35,11 +41,13 @@ const fromFirestore = (snapshot: FirebaseFirestore.DocumentSnapshot<FirebaseFire
 
 export const listComments = async (threadId: Thread['id']): Promise<Comment[]> => {
   // TODO: Fetch the list of comments for the given thread
-
-  const collectionRef = commentCollection(threadId);
+  const collectionRef = await commentCollection(threadId);
   const snapshot = await collectionRef.get();
   const comments = snapshot.docs.map(doc => fromFirestore(doc));
+  console.log(comments);
   return comments;
+
+
 }
 
 /**
@@ -73,10 +81,13 @@ export const getComment = async (threadId: Thread['id'], id: Comment['id']): Pro
  */
 export const createComment = async (threadId: Thread['id'], data: CommentCreate): Promise<Comment> => {
   // TODO: Create the comment in Firestore and return the newly created comment
+
+
+
   const newDocRef = await collectionRef.doc(threadId).collection('comments').add({
     message: data.message,
     username: data.username,
-    createdAt: new Date(),
+    createdAt: timeStamp
   });
 
   const newDocSnapshot = await newDocRef.get();
@@ -99,8 +110,7 @@ export const updateComment = async (threadId: Thread['id'], id: Comment['id'], d
   // TODO: Update the comment in Firestore and return the updated comment
 
 
-  const changedBy = new Date();
-  const newData = { ...data, changedBy };
+  const newData = { ...data, timeStamp };
 
   const collectionRef = commentCollection(threadId);
   const commentRef = collectionRef.doc(id);

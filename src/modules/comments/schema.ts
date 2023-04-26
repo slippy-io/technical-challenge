@@ -7,13 +7,13 @@ export const CommentSchema = z.object({
   username: z.string(),
   message: z.string(),
   createdAt: z.date(),
-  changedBy: z.date(),
+  changedAt: z.date(),
 })
 export type Comment = z.infer<typeof CommentSchema>
 
 // ? These schemas are provided for you, but you may need to add more fields to them
-export const CommentCreateSchema = CommentSchema.omit({ id: true, threadId: true, createdAt: true })
+export const CommentCreateSchema = CommentSchema.omit({ id: true, threadId: true, createdAt: true , changedAt:true})
 export type CommentCreate = z.infer<typeof CommentCreateSchema>
 
-export const CommentUpdateSchema = CommentSchema.omit({ id: true, threadId: true, createdAt: true, createdBy: true })
+export const CommentUpdateSchema = CommentSchema.omit({ id: true, threadId: true, createdAt: true, changedAt: true })
 export type CommentUpdate = z.infer<typeof CommentUpdateSchema>

@@ -7,16 +7,15 @@ export const threadSchema = z.object({
   description: z.string(),
   username: z.string(),
   createdAt: z.date(),
-  changedBy: z.date(),
-
+  changedAt: z.date(),
 
 })
 
 export type Thread = z.infer<typeof threadSchema>
 
 // ? These schemas are provided for you, but you may need to add more fields to them
-export const threadCreateSchema = threadSchema.omit({ id: true, createdAt: true })
+export const threadCreateSchema = threadSchema.omit({ id: true, createdAt: true ,changedAt:true })
 export type ThreadCreate = z.infer<typeof threadCreateSchema>
 
-export const threadUpdateSchema = threadSchema.omit({ id: true, createdAt: true, createdBy: true })
+export const threadUpdateSchema = threadSchema.omit({ id: true, createdAt: true, changedAt: true })
 export type ThreadUpdate = z.infer<typeof threadUpdateSchema>

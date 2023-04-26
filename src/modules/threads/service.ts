@@ -2,10 +2,19 @@ import { FieldValue } from 'firebase-admin/firestore'
 import { db } from '../../services/firebase'
 import { ThreadUpdate, type Thread, type ThreadCreate } from './schema'
 import { create } from 'domain'
+import moment from 'moment';
 
 
 // Reference to the threads collection
 const collectionRef = db.collection('Thread')
+
+
+//timeline
+
+
+const time = Date.now();
+const timeStamp = moment(time).format('ddd MMM DD YYYY HH:mm:ss [GMT]ZZ ');
+
 
 // Utility function to convert a Firestore document to a Thread object
 const fromFirestore = (snapshot: FirebaseFirestore.DocumentSnapshot<FirebaseFirestore.DocumentData>) => {
@@ -20,7 +29,7 @@ const fromFirestore = (snapshot: FirebaseFirestore.DocumentSnapshot<FirebaseFire
     description: data.description,
     username: data.username,
     createdAt: data.createdAt,
-    changedBy: data.changedBy
+    changedAt: data.changedAt
 
   } as Thread
 
@@ -41,7 +50,7 @@ export const createThread = async (data: ThreadCreate): Promise<Thread> => {
     title: data.title,
     description: data.description,
     username: data.username,
-    createdAt: new Date(),
+    createdAt: timeStamp
   })
 
   const newDocSnapshot = await newDocRef.get()
@@ -106,15 +115,13 @@ export const getThread = async (id: Thread['id']): Promise<Thread | string> => {
 export const updateThread = async (id: Thread['id'], data: ThreadUpdate): Promise<Thread> => {
   // TODO: Update the thread in Firestore and return the updated thread
 
-  const changedBy = new Date();
-  const newData = { ...data, changedBy };
+  const newData = { ...data,changedAt: timeStamp };
 
 
   const threadRef = collectionRef.doc(id);
   await threadRef.update(newData);
   const updatedSnapshot = await threadRef.get();
   const updatedThread = { id: updatedSnapshot.id, ...updatedSnapshot.data() } as Thread;
-  console.log(updatedThread)
   return updatedThread;
 }
 

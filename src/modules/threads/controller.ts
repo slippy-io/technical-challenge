@@ -157,12 +157,12 @@ export const deleteThreadHandler = async (req: Request, res: Response) => {
 
   try {
     // TODO: Delete the thread using the deleteThread service
-    await deleteThread(threadId)
+    const deleteStamp =await deleteThread(threadId)
 
     // TODO: Return a success response
     const response = {
       success: true,
-      data:deleteThread
+      data:deleteStamp
     }
     return res.send(response)
   } catch (error) {
@@ -170,6 +170,6 @@ export const deleteThreadHandler = async (req: Request, res: Response) => {
       error,
       success: false
     }
-    return res.status(500).send(response)
+    return res.status(500).json(response)
   }
 }
