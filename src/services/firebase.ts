@@ -5,7 +5,6 @@ import { credential } from 'firebase-admin';
 // Firebase service account credentials
 const serviceAccount = require('./firebase-adminsdk.json');
 
-
 //fire base config 
 const firebaseConfig = {
     apiKey: "AIzaSyCsJ6UHp7ttyGasmEVixaJTRGygGLjYUyU",
@@ -17,14 +16,11 @@ const firebaseConfig = {
     measurementId: "G-T4622DDYWB"
 }
 
-
-
-
 // Initialize Firebase Admin with the service account credentials
 const app = initializeApp({
     credential: credential.cert(serviceAccount),
     ...firebaseConfig,
   });
-  
-  // Initialize Firestore
-  export const db = getFirestore(app);
+
+// Initialize Firestore
+export const db = getFirestore(app);

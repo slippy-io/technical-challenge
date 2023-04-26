@@ -1,7 +1,6 @@
 import { Request, Response } from 'express'
 import { threadCreateSchema, threadUpdateSchema } from './schema'
 import { createThread, deleteThread, getThread, listThreads, updateThread } from './service'
-import { db } from '../../services/firebase';
 
 /**
  * Create a thread
@@ -44,16 +43,12 @@ export const createThreadHandler = async (req: Request, res: Response) => {
     });
 }
 
-
-
 /**
  * Fetch the list of threads
  * @param req Request Object
  * @param res Response Object
  * @returns Success object of list of threads
  */
-
-
 export const listThreadsHandler = async (req: Request, res: Response) => {
   try {
 
@@ -86,10 +81,8 @@ export const listThreadsHandler = async (req: Request, res: Response) => {
 export const getThreadHandler = async (req: Request, res: Response) => {
   const { threadId } = req.params
   try {
-
     // TODO: Fetch the thread using the getThread service
     const thread = await getThread(threadId)
-
     // TODO: Return the thread in the response
     const response = {
       data: thread,
@@ -145,7 +138,6 @@ export const updateThreadHandler = async (req: Request, res: Response) => {
   }
 }
 
-
 /**
  * Delete a thread by ID
  * @param req Request Object
@@ -154,7 +146,6 @@ export const updateThreadHandler = async (req: Request, res: Response) => {
  */
 export const deleteThreadHandler = async (req: Request, res: Response) => {
   const { threadId } = req.params
-
   try {
     // TODO: Delete the thread using the deleteThread service
     const deleteStamp =await deleteThread(threadId)

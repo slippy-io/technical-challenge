@@ -1,7 +1,6 @@
 import { Request, Response } from 'express'
 import { CommentCreateSchema, CommentUpdateSchema } from './schema'
 import { createComment, deleteComment, getComment, listComments, updateComment } from './service'
-import { db } from '../../services/firebase';
 /**
  * Create a comment for a thread
  * @param req Request Object
@@ -79,7 +78,7 @@ export const getCommentHandler = async (req: Request, res: Response) => {
   // TODO: Return the comment in the response
   const response = {
     data: comment,
-    success: true
+    success: false
   }
   return res.status(200).send(response);
 }

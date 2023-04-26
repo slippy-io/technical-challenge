@@ -2,10 +2,10 @@ import { z } from 'zod'
 
 // TODO: Add the fields you need to the Thread schema
 export const threadSchema = z.object({
-  id: z.string(),
-  title: z.string(),
-  description: z.string(),
-  username: z.string(),
+  id: z.string().nonempty(),
+  title: z.string().nonempty().min(5),
+  description: z.string().min(1),
+  username: z.string().min(3).nonempty(),
   createdAt: z.date(),
   changedAt: z.date(),
 
