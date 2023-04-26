@@ -1,87 +1,156 @@
 import { Request, Response } from 'express'
-import { threadCreateSchema, threadUpdateSchema } from './schema'
-import { createThread, deleteThread, getThread, listThreads, updateThread } from './service'
-
+import { CommentCreateSchema, CommentUpdateSchema } from './schema'
+import { createComment, deleteComment, getComment, listComments, updateComment } from './service'
+import { db } from '../../services/firebase';
 /**
- * Create a thread
+ * Create a comment for a thread
  * @param req Request Object
  * @param res Response Object
- * @returns Success object of created thread
+ * @returns Success object of created comment
  */
-export const createThreadHandler = async (req: Request, res: Response) => {
-  throw new Error('Not implemented')
-
-  // TODO: Validate the request body using threadCreateSchema
-
-  // TODO: If the request body is invalid, return a 400 response with the error
-
-  // TODO: Create the thread using the createThread service
-
-  // TODO: Return the created thread in the response
-}
-
-/**
- * Fetch the list of threads
- * @param req Request Object
- * @param res Response Object
- * @returns Success object of list of threads
- */
-export const listThreadsHandler = async (req: Request, res: Response) => {
-  throw new Error('Not implemented')
-
-  // TODO: Fetch the list of threads using the listThreads service
-
-  // TODO: Return the list of threads in the response
-}
-
-/**
- * Fetch a thread by ID
- * @param req Request Object
- * @param res Response Object
- * @returns Success object of a given thread
- */
-export const getThreadHandler = async (req: Request, res: Response) => {
+export const createCommentHandler = async (req: Request, res: Response) => {
   const { threadId } = req.params
 
-  throw new Error('Not implemented')
+  const { message, username } = req.body;
 
-  // TODO: Fetch the thread using the getThread service
+  try {
+    // TODO: Validate the request body using CommentCreateSchema
 
-  // TODO: Return the thread in the response
+    CommentCreateSchema.parse(req.body)
+
+  } catch (error) {
+    // TODO: If the request body is invalid, return a 400 response with the error
+
+    return res.status(400).json({ success: false, error });
+  }
+
+  // TODO: Create the comment using the createComment service
+
+
+  createComment(threadId, req.body)
+
+    .then((comment) => {
+      // TODO: Return the created comment in the response
+      return res.status(200).json({
+        success: true,
+        data: comment
+      });
+    })
+
+    .catch((error) => {
+      return res.status(500).json({
+        success: false,
+        error
+      });
+    });
+
+
 }
 
+
 /**
- * Update a thread by ID
+ * Fetch the list of comments for a thread
  * @param req Request Object
  * @param res Response Object
- * @returns Success object of a given thread
+ * @returns Success object of list of comments for a thread
  */
-export const updateThreadHandler = async (req: Request, res: Response) => {
+export const listCommentsHandler = async (req: Request, res: Response) => {
   const { threadId } = req.params
 
-  throw new Error('Not implemented')
 
-  // TODO: Validate the request body using threadUpdateSchema
 
-  // TODO: If the request body is invalid, return a 400 response with the error
 
-  // TODO: Update the thread using the updateThread service
+  // TODO: Fetch the list of comments using the listComments service
 
-  // TODO: Return the updated thread in the response
+  const comments = await listComments(threadId)
+  // TODO: Return the list of comments in the response
+
+  return res.status(200).json({
+    success: true,
+    data: comments
+  });
 }
 
 /**
- * Delete a thread by ID
+ * Fetch a comment by ID for a thread
+ * @param req Request Object
+ * @param res Response Object
+ * @returns Success object of a given comment in a thread
+ */
+export const getCommentHandler = async (req: Request, res: Response) => {
+  const { threadId, commentId } = req.params
+
+
+  // TODO: Fetch the comment by ID using the getComment service
+  const threadsById = await getComment(threadId, commentId)
+
+  // TODO: Return the comment in the response
+  return res.status(200).json({
+    success: true,
+    data: threadsById
+  });
+}
+
+/**
+ * Update a comment by ID for a thread
+ * @param req Request Object
+ * @param res Response Object
+ * @returns Success object of a given comment in a thread
+ */
+export const updateCommentHandler = async (req: Request, res: Response) => {
+  const { threadId, commentId } = req.params
+
+  try {
+
+    // TODO: Validate the request body using CommentUpdateSchema
+    CommentUpdateSchema.parse(req.body)
+  } catch (error) {
+
+    // TODO: If the request body is invalid, return a 400 response with the error
+    return res.status(400).json({ success: false, error });
+
+  }
+  try {
+
+    // TODO: Update the comment by ID using the updateComment service
+    const updatedComment = await updateComment(threadId, commentId, req.body)
+
+    // TODO: Return the updated comment in the response res.send(updatedThread)
+    res.status(200).json({ success: true, updatedComment })
+
+  } catch (error) {
+
+    return res.status(400).json({ success: false, error });
+
+  }
+}
+
+/**
+ * Delete a comment by ID for a thread
  * @param req Request Object
  * @param res Response Object
  * @returns Void success object
  */
-export const deleteThreadHandler = async (req: Request, res: Response) => {
-  const { threadId } = req.params
+export const deleteCommentHandler = async (req: Request, res: Response) => {
+  const { threadId, commentId } = req.params
 
-  throw new Error('Not implemented')
+  try {
 
-  // TODO: Delete the thread using the deleteThread service
+    // TODO: Delete the comment by ID using the deleteComment service
+    const delete_Comment = await deleteComment(threadId, commentId)
 
-  // TODO: Return a success response
+    // TODO: Return a void success response
+
+
+    return res.status(200).json({
+      success: true,
+      data:delete_Comment
+    });
+
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      error
+    });
+  }
 }
