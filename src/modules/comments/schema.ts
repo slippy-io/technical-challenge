@@ -7,6 +7,7 @@ export const CommentSchema = z.object({
   username: z.string(),
   message: z.string(),
   createdAt: z.date(),
+  changedBy: z.date(),
 })
 export type Comment = z.infer<typeof CommentSchema>
 

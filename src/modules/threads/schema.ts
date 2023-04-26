@@ -7,6 +7,8 @@ export const threadSchema = z.object({
   description: z.string(),
   username: z.string(),
   createdAt: z.date(),
+  changedBy: z.date(),
+
 
 })
 

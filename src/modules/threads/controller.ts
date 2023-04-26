@@ -11,7 +11,7 @@ import { db } from '../../services/firebase';
  */
 export const createThreadHandler = async (req: Request, res: Response) => {
 
-  const { id, title, description, username } = req.body;
+  const {  title, description, username } = req.body;
 
   try {
     // TODO: Validate the request body using threadCreateSchema

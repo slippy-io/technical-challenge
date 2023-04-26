@@ -3,6 +3,9 @@ import { db } from '../../services/firebase'
 import { Thread } from '../threads/schema'
 import { CommentUpdate, type Comment, type CommentCreate } from './schema'
 
+// Reference to the threads collection
+const collectionRef = db.collection('Thread')
+
 // Utility function to get the comments collection for a given thread
 const commentCollection = (threadId: Thread['id']) => db.collection(`threads/${threadId}/comments`)
 
@@ -18,7 +21,8 @@ const fromFirestore = (snapshot: FirebaseFirestore.DocumentSnapshot<FirebaseFire
     threadId: data.threadId,
     message: data.message,
     username: data.username,
-    createdAt: new Date()
+    createdAt: new Date(),
+    changedBy: data.changedBy
   } as Comment
 }
 /**
@@ -69,7 +73,18 @@ export const getComment = async (threadId: Thread['id'], id: Comment['id']): Pro
  */
 export const createComment = async (threadId: Thread['id'], data: CommentCreate): Promise<Comment> => {
   // TODO: Create the comment in Firestore and return the newly created comment
-  throw new Error('Not implemented')
+  const newDocRef = await collectionRef.doc(threadId).collection('comments').add({
+    message: data.message,
+    username: data.username,
+    createdAt: new Date(),
+  });
+
+  const newDocSnapshot = await newDocRef.get();
+
+  return {
+    id: newDocSnapshot.id,
+    ...newDocSnapshot.data()
+  } as Comment;
 }
 
 /**
@@ -83,9 +98,13 @@ export const createComment = async (threadId: Thread['id'], data: CommentCreate)
 export const updateComment = async (threadId: Thread['id'], id: Comment['id'], data: CommentUpdate): Promise<Comment> => {
   // TODO: Update the comment in Firestore and return the updated comment
 
+
+  const changedBy = new Date();
+  const newData = { ...data, changedBy };
+
   const collectionRef = commentCollection(threadId);
   const commentRef = collectionRef.doc(id);
-  await commentRef.update(data);
+  await commentRef.update(newData);
   const updatedSnapshot = await commentRef.get();
   const updatedComment = { ...updatedSnapshot.data(), id } as Comment;
   return updatedComment;

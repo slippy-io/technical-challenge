@@ -4,22 +4,6 @@ import { ThreadUpdate, type Thread, type ThreadCreate } from './schema'
 import { create } from 'domain'
 
 
-
-type VoidSuccessResponse = {
-  success: true;
-};
-
-type SuccessResponse<T> = {
-  data: T;
-  success: true;
-};
-
-type ErrorResponse = {
-  error: unknown;
-  success: false;
-};
-
-
 // Reference to the threads collection
 const collectionRef = db.collection('Thread')
 
@@ -35,7 +19,9 @@ const fromFirestore = (snapshot: FirebaseFirestore.DocumentSnapshot<FirebaseFire
     title: data.title,
     description: data.description,
     username: data.username,
-    createdAt: new Date(),
+    createdAt: data.createdAt,
+    changedBy: data.changedBy
+
   } as Thread
 
 }
@@ -48,12 +34,14 @@ const fromFirestore = (snapshot: FirebaseFirestore.DocumentSnapshot<FirebaseFire
  * @returns The newly created thread
  */
 export const createThread = async (data: ThreadCreate): Promise<Thread> => {
+
   // TODO: Create the thread in Firestore and return the newly created thread
 
   const newDocRef = await collectionRef.add({
     title: data.title,
     description: data.description,
     username: data.username,
+    createdAt: new Date(),
   })
 
   const newDocSnapshot = await newDocRef.get()
@@ -91,14 +79,14 @@ export const listThreads = async (): Promise<Thread[]> => {
  * @param id The ID of the thread to fetch
  * @returns The thread with the given ID
  */
-export const getThread = async (id: Thread['id']): Promise<Thread|string> => {
+export const getThread = async (id: Thread['id']): Promise<Thread | string> => {
   // TODO: Fetch the thread by ID
   const docRef = collectionRef.doc(id);
   const doc = await docRef.get();
   if (!doc.exists) {
     return `Thread with ID ${id} not found`;
 
-   
+
   } else {
     const data = doc.data();
     return { ...data, id } as Thread;
@@ -117,12 +105,17 @@ export const getThread = async (id: Thread['id']): Promise<Thread|string> => {
  */
 export const updateThread = async (id: Thread['id'], data: ThreadUpdate): Promise<Thread> => {
   // TODO: Update the thread in Firestore and return the updated thread
+
+  const changedBy = new Date();
+  const newData = { ...data, changedBy };
+
+
   const threadRef = collectionRef.doc(id);
-  await threadRef.update(data);
+  await threadRef.update(newData);
   const updatedSnapshot = await threadRef.get();
   const updatedThread = { id: updatedSnapshot.id, ...updatedSnapshot.data() } as Thread;
+  console.log(updatedThread)
   return updatedThread;
-
 }
 
 /**

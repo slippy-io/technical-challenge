@@ -18,13 +18,6 @@ const firebaseConfig = {
 }
 
 
-// // Initialize Firebase Admin
-// const app = initializeApp(firebaseConfig);    
-
-
-// // Initialize Firestore
-// export const db = getFirestore(app)
-
 
 
 // Initialize Firebase Admin with the service account credentials
