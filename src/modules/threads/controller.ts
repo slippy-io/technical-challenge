@@ -1,156 +1,175 @@
 import { Request, Response } from 'express'
-import { CommentCreateSchema, CommentUpdateSchema } from './schema'
-import { createComment, deleteComment, getComment, listComments, updateComment } from './service'
+import { threadCreateSchema, threadUpdateSchema } from './schema'
+import { createThread, deleteThread, getThread, listThreads, updateThread } from './service'
 import { db } from '../../services/firebase';
+
 /**
- * Create a comment for a thread
+ * Create a thread
  * @param req Request Object
  * @param res Response Object
- * @returns Success object of created comment
+ * @returns Success object of created thread
  */
-export const createCommentHandler = async (req: Request, res: Response) => {
-  const { threadId } = req.params
+export const createThreadHandler = async (req: Request, res: Response) => {
 
-  const { message, username } = req.body;
+  const { id, title, description, username } = req.body;
 
   try {
-    // TODO: Validate the request body using CommentCreateSchema
-
-    CommentCreateSchema.parse(req.body)
-
+    // TODO: Validate the request body using threadCreateSchema
+    const validatedData = threadCreateSchema.parse(req.body)
   } catch (error) {
     // TODO: If the request body is invalid, return a 400 response with the error
-
-    return res.status(400).json({ success: false, error });
+    const response = {
+      error: error,
+      success: false
+    };
+    return res.status(400).json(response);
   }
 
-  // TODO: Create the comment using the createComment service
-
-
-  createComment(threadId, req.body)
-
-    .then((comment) => {
-      // TODO: Return the created comment in the response
-      return res.status(200).json({
-        success: true,
-        data: comment
-      });
+  // TODO: Create the thread using the createThread service
+  createThread(req.body)
+    .then((thread) => {
+      // TODO: Return the created thread in the response
+      const response = {
+        data: thread,
+        success: true
+      }
+      return res.status(201).send(response);
     })
-
     .catch((error) => {
-      return res.status(500).json({
-        success: false,
-        error
-      });
+      const response = {
+        error,
+        success: false
+      }
+      return res.status(500).json(response);
     });
-
-
 }
 
 
+
 /**
- * Fetch the list of comments for a thread
+ * Fetch the list of threads
  * @param req Request Object
  * @param res Response Object
- * @returns Success object of list of comments for a thread
+ * @returns Success object of list of threads
  */
-export const listCommentsHandler = async (req: Request, res: Response) => {
+
+
+export const listThreadsHandler = async (req: Request, res: Response) => {
+  try {
+
+    // TODO: Fetch the list of threads using the listThreads service
+    const threads = await listThreads()
+
+    // TODO: Return the list of threads in the response
+    const response = {
+      data: threads,
+      success: true
+    }
+    return res.send(response)
+
+  } catch (error) {
+    const response = {
+      error: error,
+      success: false
+    };
+    return res.status(500).json(response);
+  }
+
+}
+
+/**
+ * Fetch a thread by ID
+ * @param req Request Object
+ * @param res Response Object
+ * @returns Success object of a given thread
+ */
+export const getThreadHandler = async (req: Request, res: Response) => {
+  const { threadId } = req.params
+  try {
+
+    // TODO: Fetch the thread using the getThread service
+    const thread = await getThread(threadId)
+
+    // TODO: Return the thread in the response
+    const response = {
+      data: thread,
+      success: true
+    }
+    return res.send(response)
+  } catch (error) {
+    const response = {
+      error: error,
+      success: false
+    };
+    return res.status(500).json(response);
+  }
+}
+
+/**
+ * Update a thread by ID
+ * @param req Request Object
+ * @param res Response Object
+ * @returns Success object of a given thread
+ */
+export const updateThreadHandler = async (req: Request, res: Response) => {
   const { threadId } = req.params
 
-
-
-
-  // TODO: Fetch the list of comments using the listComments service
-
-  const comments = await listComments(threadId)
-  // TODO: Return the list of comments in the response
-
-  return res.status(200).json({
-    success: true,
-    data: comments
-  });
-}
-
-/**
- * Fetch a comment by ID for a thread
- * @param req Request Object
- * @param res Response Object
- * @returns Success object of a given comment in a thread
- */
-export const getCommentHandler = async (req: Request, res: Response) => {
-  const { threadId, commentId } = req.params
-
-
-  // TODO: Fetch the comment by ID using the getComment service
-  const threadsById = await getComment(threadId, commentId)
-
-  // TODO: Return the comment in the response
-  return res.status(200).json({
-    success: true,
-    data: threadsById
-  });
-}
-
-/**
- * Update a comment by ID for a thread
- * @param req Request Object
- * @param res Response Object
- * @returns Success object of a given comment in a thread
- */
-export const updateCommentHandler = async (req: Request, res: Response) => {
-  const { threadId, commentId } = req.params
-
   try {
-
-    // TODO: Validate the request body using CommentUpdateSchema
-    CommentUpdateSchema.parse(req.body)
+    // TODO: Validate the request body using threadUpdateSchema
+    threadUpdateSchema.parse(req.body)
   } catch (error) {
-
     // TODO: If the request body is invalid, return a 400 response with the error
-    return res.status(400).json({ success: false, error });
-
+    const response = {
+      error,
+      success: false
+    }
+    return res.status(400).send(response)
   }
+
   try {
+    // TODO: Update the thread using the updateThread service
+    const updatedThread = await updateThread(threadId, req.body)
 
-    // TODO: Update the comment by ID using the updateComment service
-    const updatedComment = await updateComment(threadId, commentId, req.body)
-
-    // TODO: Return the updated comment in the response res.send(updatedThread)
-    res.status(200).json({ success: true, updatedComment })
-
+    // TODO: Return the updated thread in the response
+    const response = {
+      data: updatedThread,
+      success: true
+    }
+    return res.send(response)
   } catch (error) {
-
-    return res.status(400).json({ success: false, error });
-
+    const response = {
+      error,
+      success: false
+    }
+    return res.status(500).send(response)
   }
 }
 
+
 /**
- * Delete a comment by ID for a thread
+ * Delete a thread by ID
  * @param req Request Object
  * @param res Response Object
  * @returns Void success object
  */
-export const deleteCommentHandler = async (req: Request, res: Response) => {
-  const { threadId, commentId } = req.params
+export const deleteThreadHandler = async (req: Request, res: Response) => {
+  const { threadId } = req.params
 
   try {
+    // TODO: Delete the thread using the deleteThread service
+    await deleteThread(threadId)
 
-    // TODO: Delete the comment by ID using the deleteComment service
-    const delete_Comment = await deleteComment(threadId, commentId)
-
-    // TODO: Return a void success response
-
-
-    return res.status(200).json({
+    // TODO: Return a success response
+    const response = {
       success: true,
-      data:delete_Comment
-    });
-
+      data:deleteThread
+    }
+    return res.send(response)
   } catch (error) {
-    return res.status(500).json({
-      success: false,
-      error
-    });
+    const response = {
+      error,
+      success: false
+    }
+    return res.status(500).send(response)
   }
 }

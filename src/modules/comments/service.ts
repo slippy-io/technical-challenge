@@ -15,18 +15,27 @@ const fromFirestore = (snapshot: FirebaseFirestore.DocumentSnapshot<FirebaseFire
   return {
     ...data,
     id: snapshot.id,
-    createdAt: data.createdAt.toDate(),
+    threadId: data.threadId,
+    message: data.message,
+    username: data.username,
+    createdAt: new Date()
   } as Comment
 }
-
 /**
  * List all comments for a given thread
  * @param threadId The ID of the thread to fetch comments for
  * @returns An array of comments for the given thread
  */
+
+
+
 export const listComments = async (threadId: Thread['id']): Promise<Comment[]> => {
   // TODO: Fetch the list of comments for the given thread
-  throw new Error('Not implemented')
+
+  const collectionRef = commentCollection(threadId);
+  const snapshot = await collectionRef.get();
+  const comments = snapshot.docs.map(doc => fromFirestore(doc));
+  return comments;
 }
 
 /**
@@ -35,10 +44,22 @@ export const listComments = async (threadId: Thread['id']): Promise<Comment[]> =
  * @param id The ID of the comment to fetch
  * @returns The comment with the given ID
  */
-export const getComment = async (threadId: Thread['id'], id: Comment['id']): Promise<Comment> => {
+
+export const getComment = async (threadId: Thread['id'], id: Comment['id']): Promise<Comment | string> => {
+
   // TODO: Fetch the comment by ID
-  throw new Error('Not implemented')
+
+  const collectionRef = commentCollection(threadId);
+  const docRef = collectionRef.doc(id);
+  const doc = await docRef.get();
+  if (!doc.exists) {
+    return `Comment with ID ${id} not found`;
+  } else {
+    const data = doc.data();
+    return { ...data, id } as Comment;
+  }
 }
+
 
 /**
  * Create a new comment
@@ -58,9 +79,16 @@ export const createComment = async (threadId: Thread['id'], data: CommentCreate)
  * @param data The comment data to update
  * @returns The updated comment
  */
+
 export const updateComment = async (threadId: Thread['id'], id: Comment['id'], data: CommentUpdate): Promise<Comment> => {
   // TODO: Update the comment in Firestore and return the updated comment
-  throw new Error('Not implemented')
+
+  const collectionRef = commentCollection(threadId);
+  const commentRef = collectionRef.doc(id);
+  await commentRef.update(data);
+  const updatedSnapshot = await commentRef.get();
+  const updatedComment = { ...updatedSnapshot.data(), id } as Comment;
+  return updatedComment;
 }
 
 /**
@@ -69,7 +97,11 @@ export const updateComment = async (threadId: Thread['id'], id: Comment['id'], d
  * @param id The ID of the comment to delete
  * @returns The deleted comment
  */
+// TODO: Delete the comment from Firestore and return the result
+
 export const deleteComment = async (threadId: Thread['id'], id: Comment['id']): Promise<FirebaseFirestore.WriteResult> => {
-  // TODO: Delete the comment from Firestore and return the result
-  throw new Error('Not implemented')
+  const collectionRef = commentCollection(threadId);
+  const commentRef = collectionRef.doc(id);
+  const result = await commentRef.delete();
+  return result;
 }
