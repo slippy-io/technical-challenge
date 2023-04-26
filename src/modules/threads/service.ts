@@ -1,40 +1,28 @@
-import { FieldValue } from 'firebase-admin/firestore'
 import { db } from '../../services/firebase'
 import { ThreadUpdate, type Thread, type ThreadCreate } from './schema'
+import moment from 'moment';
+
 
 // Reference to the threads collection
-const threadCollection = db.collection('threads')
+const collectionRef = db.collection('Thread')
+
+//timeline
+const time = Date.now();
+const timeStamp = moment(time).format('ddd MMM DD YYYY HH:mm:ss [GMT]ZZ ');
 
 // Utility function to convert a Firestore document to a Thread object
 const fromFirestore = (snapshot: FirebaseFirestore.DocumentSnapshot<FirebaseFirestore.DocumentData>) => {
   const data = snapshot.data()
-
   if (!data) throw new Error('Thread not found')
-
   return {
     ...data,
     id: snapshot.id,
-    createdAt: data.createdAt.toDate(),
+    title: data.title,
+    description: data.description,
+    username: data.username,
+    createdAt: data.createdAt,
+    changedAt: data.changedAt
   } as Thread
-}
-
-/**
- * List all threads
- * @returns An array of threads
- */
-export const listThreads = async (): Promise<Thread[]> => {
-  // TODO: Fetch the list of threads
-  throw new Error('Not implemented')
-}
-
-/**
- * Get a single thread by ID
- * @param id The ID of the thread to fetch
- * @returns The thread with the given ID
- */
-export const getThread = async (id: Thread['id']): Promise<Thread> => {
-  // TODO: Fetch the thread by ID
-  throw new Error('Not implemented')
 }
 
 /**
@@ -44,7 +32,46 @@ export const getThread = async (id: Thread['id']): Promise<Thread> => {
  */
 export const createThread = async (data: ThreadCreate): Promise<Thread> => {
   // TODO: Create the thread in Firestore and return the newly created thread
-  throw new Error('Not implemented')
+  const newDocRef = await collectionRef.add({
+    title: data.title,
+    description: data.description,
+    username: data.username,
+    createdAt: timeStamp
+  })
+  const newDocSnapshot = await newDocRef.get()
+  return {
+    id: newDocSnapshot.id,
+    ...newDocSnapshot.data()
+  } as Thread
+}
+
+/**
+ * List all threads
+ * @returns An array of threads
+ */
+export const listThreads = async (): Promise<Thread[]> => {
+  // TODO: Fetch the list of threads
+  const snapshot = await collectionRef.get();
+  const threads = snapshot.docs.map(doc => fromFirestore(doc)
+  );
+  return threads;
+}
+
+/**
+ * Get a single thread by ID
+ * @param id The ID of the thread to fetch
+ * @returns The thread with the given ID
+ */
+export const getThread = async (id: Thread['id']): Promise<Thread | string> => {
+  // TODO: Fetch the thread by ID
+  const docRef = collectionRef.doc(id);
+  const doc = await docRef.get();
+  if (!doc.exists) {
+    return `Thread with ID ${id} not found`;
+  } else {
+    const data = doc.data();
+    return { ...data, id } as Thread;
+  }
 }
 
 /**
@@ -55,7 +82,12 @@ export const createThread = async (data: ThreadCreate): Promise<Thread> => {
  */
 export const updateThread = async (id: Thread['id'], data: ThreadUpdate): Promise<Thread> => {
   // TODO: Update the thread in Firestore and return the updated thread
-  throw new Error('Not implemented')
+  const newData = { ...data,changedAt: timeStamp };
+  const threadRef = collectionRef.doc(id);
+  await threadRef.update(newData);
+  const updatedSnapshot = await threadRef.get();
+  const updatedThread = { id: updatedSnapshot.id, ...updatedSnapshot.data() } as Thread;
+  return updatedThread;
 }
 
 /**
@@ -65,5 +97,7 @@ export const updateThread = async (id: Thread['id'], data: ThreadUpdate): Promis
  */
 export const deleteThread = async (id: Thread['id']): Promise<FirebaseFirestore.WriteResult> => {
   // TODO: Delete the thread in Firestore and return the write result
-  throw new Error('Not implemented')
+  const threadRef = collectionRef.doc(id);
+  const result = await threadRef.delete();
+  return result;
 }

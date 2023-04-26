@@ -1,7 +1,6 @@
 import { Request, Response } from 'express'
 import { CommentCreateSchema, CommentUpdateSchema } from './schema'
 import { createComment, deleteComment, getComment, listComments, updateComment } from './service'
-
 /**
  * Create a comment for a thread
  * @param req Request Object
@@ -11,15 +10,36 @@ import { createComment, deleteComment, getComment, listComments, updateComment }
 export const createCommentHandler = async (req: Request, res: Response) => {
   const { threadId } = req.params
 
-  throw new Error('Not implemented')
-
-  // TODO: Validate the request body using CommentCreateSchema
-
-  // TODO: If the request body is invalid, return a 400 response with the error
+  const { message, username } = req.body;
+  try {
+    // TODO: Validate the request body using CommentCreateSchema
+    CommentCreateSchema.parse(req.body)
+  } catch (error) {
+    // TODO: If the request body is invalid, return a 400 response with the error
+    const response = {
+      error,
+      success: "false"
+    }
+    return res.status(400).json(response);
+  }
 
   // TODO: Create the comment using the createComment service
-
-  // TODO: Return the created comment in the response
+  createComment(threadId, req.body)
+    .then((comment) => {
+      // TODO: Return the created comment in the response
+      const response = {
+        data: comment,
+        success: "true"
+      }
+      return res.status(201).send(response);
+    })
+    .catch((error) => {
+      const response = {
+        error,
+        success: "false"
+      }
+      return res.status(500).json(response);
+    });
 }
 
 /**
@@ -31,12 +51,17 @@ export const createCommentHandler = async (req: Request, res: Response) => {
 export const listCommentsHandler = async (req: Request, res: Response) => {
   const { threadId } = req.params
 
-  throw new Error('Not implemented')
-
   // TODO: Fetch the list of comments using the listComments service
+  const comments = await listComments(threadId)
 
   // TODO: Return the list of comments in the response
+  const response = {
+    data: comments,
+    success: true
+  }
+  return res.status(200).send(response);
 }
+
 
 /**
  * Fetch a comment by ID for a thread
@@ -47,11 +72,15 @@ export const listCommentsHandler = async (req: Request, res: Response) => {
 export const getCommentHandler = async (req: Request, res: Response) => {
   const { threadId, commentId } = req.params
 
-  throw new Error('Not implemented')
-
   // TODO: Fetch the comment by ID using the getComment service
+  const comment = await getComment(threadId, commentId)
 
   // TODO: Return the comment in the response
+  const response = {
+    data: comment,
+    success: "true"
+  }
+  return res.status(200).send(response);
 }
 
 /**
@@ -62,17 +91,41 @@ export const getCommentHandler = async (req: Request, res: Response) => {
  */
 export const updateCommentHandler = async (req: Request, res: Response) => {
   const { threadId, commentId } = req.params
+  try {
+    // TODO: Validate the request body using CommentUpdateSchema
+    CommentUpdateSchema.parse(req.body)
+  } catch (error) {
+    // TODO: If the request body is invalid, return a 400 response with the error
+    const response = {
+      error,
+      success: "false"
+    }
+    return res.status(400).json(response);
+  }
 
-  throw new Error('Not implemented')
+  try {
 
-  // TODO: Validate the request body using CommentUpdateSchema
+    // TODO: Update the comment by ID using the updateComment service
+    const updatedComment = await updateComment(threadId, commentId, req.body)
 
-  // TODO: If the request body is invalid, return a 400 response with the error
+    // TODO: Return the updated comment in the response
 
-  // TODO: Update the comment by ID using the updateComment service
+    const response = {
+      data: updatedComment,
+      success: "true"
+    }
+    return res.send(response)
 
-  // TODO: Return the updated comment in the response
+  } catch (error) {
+
+    const response = {
+      error,
+      success: "false"
+    }
+    return res.status(500).send(response)
+  }
 }
+
 
 /**
  * Delete a comment by ID for a thread
@@ -83,9 +136,22 @@ export const updateCommentHandler = async (req: Request, res: Response) => {
 export const deleteCommentHandler = async (req: Request, res: Response) => {
   const { threadId, commentId } = req.params
 
-  throw new Error('Not implemented')
+  try {
 
-  // TODO: Delete the comment by ID using the deleteComment service
+    // TODO: Delete the comment by ID using the deleteComment service
+    const delete_Comment = await deleteComment(threadId, commentId)
 
-  // TODO: Return a void success response
+    // TODO: Return a void success response
+    const response = {
+      success: "true",
+      data: delete_Comment
+    }
+    return res.send(response)
+  } catch (error) {
+    const response = {
+      error,
+      success: "false"
+    }
+    return res.status(500).send(response)
+  }
 }

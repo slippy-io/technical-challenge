@@ -9,15 +9,38 @@ import { createThread, deleteThread, getThread, listThreads, updateThread } from
  * @returns Success object of created thread
  */
 export const createThreadHandler = async (req: Request, res: Response) => {
-  throw new Error('Not implemented')
 
-  // TODO: Validate the request body using threadCreateSchema
+  const {  title, description, username } = req.body;
 
-  // TODO: If the request body is invalid, return a 400 response with the error
+  try {
+    // TODO: Validate the request body using threadCreateSchema
+    const validatedData = threadCreateSchema.parse(req.body)
+  } catch (error) {
+    // TODO: If the request body is invalid, return a 400 response with the error
+    const response = {
+      error: error,
+      success: "false"
+    };
+    return res.status(400).json(response);
+  }
 
   // TODO: Create the thread using the createThread service
-
-  // TODO: Return the created thread in the response
+  createThread(req.body)
+    .then((thread) => {
+      // TODO: Return the created thread in the response
+      const response = {
+        data: thread,
+        success: "true"
+      }
+      return res.status(201).send(response);
+    })
+    .catch((error) => {
+      const response = {
+        error,
+        success: "false"
+      }
+      return res.status(500).json(response);
+    });
 }
 
 /**
@@ -27,11 +50,26 @@ export const createThreadHandler = async (req: Request, res: Response) => {
  * @returns Success object of list of threads
  */
 export const listThreadsHandler = async (req: Request, res: Response) => {
-  throw new Error('Not implemented')
+  try {
 
-  // TODO: Fetch the list of threads using the listThreads service
+    // TODO: Fetch the list of threads using the listThreads service
+    const threads = await listThreads()
 
-  // TODO: Return the list of threads in the response
+    // TODO: Return the list of threads in the response
+    const response = {
+      data: threads,
+      success: "true"
+    }
+    return res.send(response)
+
+  } catch (error) {
+    const response = {
+      error: error,
+      success: "false"
+    };
+    return res.status(500).json(response);
+  }
+
 }
 
 /**
@@ -42,12 +80,22 @@ export const listThreadsHandler = async (req: Request, res: Response) => {
  */
 export const getThreadHandler = async (req: Request, res: Response) => {
   const { threadId } = req.params
-
-  throw new Error('Not implemented')
-
-  // TODO: Fetch the thread using the getThread service
-
-  // TODO: Return the thread in the response
+  try {
+    // TODO: Fetch the thread using the getThread service
+    const thread = await getThread(threadId)
+    // TODO: Return the thread in the response
+    const response = {
+      data: thread,
+      success: "true"
+    }
+    return res.send(response)
+  } catch (error) {
+    const response = {
+      error: error,
+      success: "false"
+    };
+    return res.status(500).json(response);
+  }
 }
 
 /**
@@ -59,15 +107,35 @@ export const getThreadHandler = async (req: Request, res: Response) => {
 export const updateThreadHandler = async (req: Request, res: Response) => {
   const { threadId } = req.params
 
-  throw new Error('Not implemented')
+  try {
+    // TODO: Validate the request body using threadUpdateSchema
+    threadUpdateSchema.parse(req.body)
+  } catch (error) {
+    // TODO: If the request body is invalid, return a 400 response with the error
+    const response = {
+      error,
+      success: "false"
+    }
+    return res.status(400).send(response)
+  }
 
-  // TODO: Validate the request body using threadUpdateSchema
+  try {
+    // TODO: Update the thread using the updateThread service
+    const updatedThread = await updateThread(threadId, req.body)
 
-  // TODO: If the request body is invalid, return a 400 response with the error
-
-  // TODO: Update the thread using the updateThread service
-
-  // TODO: Return the updated thread in the response
+    // TODO: Return the updated thread in the response
+    const response = {
+      data: updatedThread,
+      success: "true"
+    }
+    return res.send(response)
+  } catch (error) {
+    const response = {
+      error,
+      success: "false"
+    }
+    return res.status(500).send(response)
+  }
 }
 
 /**
@@ -78,10 +146,21 @@ export const updateThreadHandler = async (req: Request, res: Response) => {
  */
 export const deleteThreadHandler = async (req: Request, res: Response) => {
   const { threadId } = req.params
+  try {
+    // TODO: Delete the thread using the deleteThread service
+    const deleteStamp =await deleteThread(threadId)
 
-  throw new Error('Not implemented')
-
-  // TODO: Delete the thread using the deleteThread service
-
-  // TODO: Return a success response
+    // TODO: Return a success response
+    const response = {
+      success: "true",
+      data:deleteStamp
+    }
+    return res.send(response)
+  } catch (error) {
+    const response = {
+      error,
+      success: "false"
+    }
+    return res.status(500).json(response)
+  }
 }
