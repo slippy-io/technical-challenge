@@ -18,7 +18,7 @@ export const createCommentHandler = async (req: Request, res: Response) => {
     // TODO: If the request body is invalid, return a 400 response with the error
     const response = {
       error,
-      success: false
+      success: "false"
     }
     return res.status(400).json(response);
   }
@@ -29,14 +29,14 @@ export const createCommentHandler = async (req: Request, res: Response) => {
       // TODO: Return the created comment in the response
       const response = {
         data: comment,
-        success: true
+        success: "true"
       }
       return res.status(201).send(response);
     })
     .catch((error) => {
       const response = {
         error,
-        success: false
+        success: "false"
       }
       return res.status(500).json(response);
     });
@@ -78,7 +78,7 @@ export const getCommentHandler = async (req: Request, res: Response) => {
   // TODO: Return the comment in the response
   const response = {
     data: comment,
-    success: false
+    success: "true"
   }
   return res.status(200).send(response);
 }
@@ -98,7 +98,7 @@ export const updateCommentHandler = async (req: Request, res: Response) => {
     // TODO: If the request body is invalid, return a 400 response with the error
     const response = {
       error,
-      success: false
+      success: "false"
     }
     return res.status(400).json(response);
   }
@@ -112,7 +112,7 @@ export const updateCommentHandler = async (req: Request, res: Response) => {
 
     const response = {
       data: updatedComment,
-      success: true
+      success: "true"
     }
     return res.send(response)
 
@@ -120,7 +120,7 @@ export const updateCommentHandler = async (req: Request, res: Response) => {
 
     const response = {
       error,
-      success: false
+      success: "false"
     }
     return res.status(500).send(response)
   }
@@ -143,14 +143,14 @@ export const deleteCommentHandler = async (req: Request, res: Response) => {
 
     // TODO: Return a void success response
     const response = {
-      success: true,
+      success: "true",
       data: delete_Comment
     }
     return res.send(response)
   } catch (error) {
     const response = {
       error,
-      success: false
+      success: "false"
     }
     return res.status(500).send(response)
   }

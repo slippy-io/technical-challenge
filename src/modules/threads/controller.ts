@@ -19,7 +19,7 @@ export const createThreadHandler = async (req: Request, res: Response) => {
     // TODO: If the request body is invalid, return a 400 response with the error
     const response = {
       error: error,
-      success: false
+      success: "false"
     };
     return res.status(400).json(response);
   }
@@ -30,14 +30,14 @@ export const createThreadHandler = async (req: Request, res: Response) => {
       // TODO: Return the created thread in the response
       const response = {
         data: thread,
-        success: true
+        success: "true"
       }
       return res.status(201).send(response);
     })
     .catch((error) => {
       const response = {
         error,
-        success: false
+        success: "false"
       }
       return res.status(500).json(response);
     });
@@ -58,14 +58,14 @@ export const listThreadsHandler = async (req: Request, res: Response) => {
     // TODO: Return the list of threads in the response
     const response = {
       data: threads,
-      success: true
+      success: "true"
     }
     return res.send(response)
 
   } catch (error) {
     const response = {
       error: error,
-      success: false
+      success: "false"
     };
     return res.status(500).json(response);
   }
@@ -86,13 +86,13 @@ export const getThreadHandler = async (req: Request, res: Response) => {
     // TODO: Return the thread in the response
     const response = {
       data: thread,
-      success: true
+      success: "true"
     }
     return res.send(response)
   } catch (error) {
     const response = {
       error: error,
-      success: false
+      success: "false"
     };
     return res.status(500).json(response);
   }
@@ -114,7 +114,7 @@ export const updateThreadHandler = async (req: Request, res: Response) => {
     // TODO: If the request body is invalid, return a 400 response with the error
     const response = {
       error,
-      success: false
+      success: "false"
     }
     return res.status(400).send(response)
   }
@@ -126,13 +126,13 @@ export const updateThreadHandler = async (req: Request, res: Response) => {
     // TODO: Return the updated thread in the response
     const response = {
       data: updatedThread,
-      success: true
+      success: "true"
     }
     return res.send(response)
   } catch (error) {
     const response = {
       error,
-      success: false
+      success: "false"
     }
     return res.status(500).send(response)
   }
@@ -152,14 +152,14 @@ export const deleteThreadHandler = async (req: Request, res: Response) => {
 
     // TODO: Return a success response
     const response = {
-      success: true,
+      success: "true",
       data:deleteStamp
     }
     return res.send(response)
   } catch (error) {
     const response = {
       error,
-      success: false
+      success: "false"
     }
     return res.status(500).json(response)
   }
