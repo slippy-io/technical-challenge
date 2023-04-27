@@ -3,6 +3,10 @@ import { z } from 'zod'
 // TODO: Add the fields you need to the Thread schema
 export const threadSchema = z.object({
   id: z.string(),
+  title: z.string(),
+  content: z.string(),
+  createdAt: z.date(),
+  createdBy: z.string(),
 })
 export type Thread = z.infer<typeof threadSchema>
 
