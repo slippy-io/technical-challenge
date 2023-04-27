@@ -1,6 +1,10 @@
 import { Request, Response } from 'express'
 import { threadCreateSchema, threadUpdateSchema } from './schema'
 import { createThread, deleteThread, getThread, listThreads, updateThread } from './service'
+import { ZodError, unknown } from 'zod'
+import { threadId } from 'worker_threads'
+import { json } from 'stream/consumers'
+import { error } from 'console'
 
 /**
  * Create a thread
@@ -9,15 +13,27 @@ import { createThread, deleteThread, getThread, listThreads, updateThread } from
  * @returns Success object of created thread
  */
 export const createThreadHandler = async (req: Request, res: Response) => {
-  throw new Error('Not implemented')
 
-  // TODO: Validate the request body using threadCreateSchema
+  try{
+    // TODO: Validate the request body using threadCreateSchema
+    const threadData = threadCreateSchema.parse(req.body)
 
-  // TODO: If the request body is invalid, return a 400 response with the error
+    // TODO: Create the thread using the createThread service
+    const thread = await createThread(threadData)
 
-  // TODO: Create the thread using the createThread service
+    // TODO: Return the created thread in the response
+    res.status(201).json({ success: true, data: thread})
 
-  // TODO: Return the created thread in the response
+    // TODO: If the request body is invalid, return a 400 response with the error
+  } catch (error: unknown) {
+    if (error instanceof ZodError) {
+      res.status(400).json({ success: false, error: error.errors })
+    } else {
+      // Otherwise, return a 500 response with the error
+      res.status(500).json({ success: false, error: 'Internal Server Error' })
+    }
+  }
+
 }
 
 /**
@@ -27,11 +43,17 @@ export const createThreadHandler = async (req: Request, res: Response) => {
  * @returns Success object of list of threads
  */
 export const listThreadsHandler = async (req: Request, res: Response) => {
-  throw new Error('Not implemented')
 
-  // TODO: Fetch the list of threads using the listThreads service
+  try{
 
-  // TODO: Return the list of threads in the response
+    // TODO: Fetch the list of threads using the listThreads service
+    const threads = await listThreads()
+
+    // TODO: Return the list of threads in the response
+    res.json({ success: true, data: threads })
+  } catch (error: unknown) {
+    res.status(500).json({ success: false, error: 'Insternal Server Error' })
+  }
 }
 
 /**
@@ -43,11 +65,16 @@ export const listThreadsHandler = async (req: Request, res: Response) => {
 export const getThreadHandler = async (req: Request, res: Response) => {
   const { threadId } = req.params
 
-  throw new Error('Not implemented')
+  try{
 
-  // TODO: Fetch the thread using the getThread service
+    // TODO: Fetch the thread using the getThread service
+    const thread = await getThread(threadId)
 
-  // TODO: Return the thread in the response
+    // TODO: Return the thread in the response
+    res.json({ success: true, data: thread })
+  } catch (error: unknown) {
+    res.status(500).json({ success: false, error: 'Internal Server Error' })
+  }
 }
 
 /**
@@ -59,15 +86,27 @@ export const getThreadHandler = async (req: Request, res: Response) => {
 export const updateThreadHandler = async (req: Request, res: Response) => {
   const { threadId } = req.params
 
-  throw new Error('Not implemented')
+  try{
 
-  // TODO: Validate the request body using threadUpdateSchema
+    // TODO: Validate the request body using threadUpdateSchema
+    const threadData = threadUpdateSchema.parse(req.body)
 
-  // TODO: If the request body is invalid, return a 400 response with the error
+    // TODO: Update the thread using the updateThread service
+    const thread = await updateThread(threadId, threadData)
 
-  // TODO: Update the thread using the updateThread service
+    // TODO: Return the updated thread in the response
+    res.json({ success: true, data: thread })
 
-  // TODO: Return the updated thread in the response
+    // TODO: If the request body is invalid, return a 400 response with the error
+  } catch (error: unknown) {
+    if (error instanceof ZodError) {
+      res.status(400).json({ success: false, error: error.message });
+    } else {
+      // Handle other types of errors
+      console.error(error);
+      res.status(500).json({ success: false, error: 'Internal Server Error' });
+    }
+  }
 }
 
 /**
@@ -79,9 +118,15 @@ export const updateThreadHandler = async (req: Request, res: Response) => {
 export const deleteThreadHandler = async (req: Request, res: Response) => {
   const { threadId } = req.params
 
-  throw new Error('Not implemented')
+  try{
 
-  // TODO: Delete the thread using the deleteThread service
+    // TODO: Delete the thread using the deleteThread service
+    await deleteThread(threadId)
 
-  // TODO: Return a success response
+    // TODO: Return a success response
+    res.json({ success: true })
+  } catch (error) {
+    console.error(error)
+    res.status(500).json({ success: false, error: 'Internal Server Error' })
+  }
 }
